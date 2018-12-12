@@ -18,14 +18,16 @@
           type="text"
           placeholder="username"
           prefix-icon="fas fa-user"
-          v-model="username"/>
+          v-model="username"
+          @input="$v.username.$touch()"/>
 
         <el-input
           type="password"
           placeholder="password"
           prefix-icon="fas fa-key"
           v-model="password"
-          @keyup.enter.native="onSubmit"/>
+          @keyup.enter.native="onSubmit"
+          @input="$v.password.$touch()"/>
 
         <div class="content-center" >
           <el-button type="primary" class="btn-login" @click="onSubmit">Login</el-button>
@@ -42,6 +44,8 @@
 <script>
 /* eslint-disable */
 import axios from 'axios'
+import { required } from 'vuelidate/lib/validators'
+
 export default {
   name: 'Login',
   data () {
@@ -54,6 +58,10 @@ export default {
         message: ''
       },
     }
+  },
+  validations: {
+    username: { required },
+    password: { required }
   },
   methods: {
     onSubmit() {
@@ -113,8 +121,6 @@ export default {
 
     &:before {
        content: '';
-      width: 600px;
-      height: 420px;
       background: inherit; 
       position: absolute;
       left: -25px;  //giving minus -25px left position
@@ -122,7 +128,7 @@ export default {
       top: -25px;   //giving minus -25px top position 
       bottom: 0;
       box-shadow: inset 0 0 0 200px rgba(255,255,255,0.3);
-      filter: blur(10px);
+      // filter: blur(10px);
     }
   }
 
