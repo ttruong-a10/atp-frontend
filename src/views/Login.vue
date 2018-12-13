@@ -6,7 +6,7 @@
         <h2>Please login</h2>
 
         <el-alert
-          class="errors"
+          class="alert"
           :title="errors.code"
           :description="errors.message"
           type="error"
@@ -15,19 +15,23 @@
           v-show="showAlert"/>
 
         <el-input
+          :class="{ 'input-error': $v.username.$error }"
+          size="large"
           type="text"
           placeholder="username"
           prefix-icon="fas fa-user"
-          v-model="username"
-          @input="$v.username.$touch()"/>
+          v-model.trim="$v.username.$model"/>
+        <div class="form-error" v-if="$v.username.$error">Username is required</div>
 
         <el-input
+          :class="{ 'input-error': $v.password.$error }"
+          size="large"
           type="password"
           placeholder="password"
           prefix-icon="fas fa-key"
-          v-model="password"
-          @keyup.enter.native="onSubmit"
-          @input="$v.password.$touch()"/>
+          v-model.trim="$v.password.$model"
+          @keyup.enter.native="onSubmit" />
+        <div class="form-error" v-if="$v.password.$error">Password is required</div>
 
         <div class="content-center" >
           <el-button type="primary" class="btn-login" @click="onSubmit">Login</el-button>
@@ -50,8 +54,8 @@ export default {
   name: 'Login',
   data () {
     return {
-      username: null,
-      password: null,
+      username: '',
+      password: '',
       showAlert: false,
       errors: {
         code: '',
@@ -72,27 +76,31 @@ export default {
       }
       const url = 'http://127.0.0.1:8000/rest-auth/login/'
 
-      axios.post(url, formData)
-        .then(res => {
-          // Authenticate
-          let token = res.data.key
-          this.$store.commit('authenticate', { token: token })
-          console.log(this.$store.state.authenticated)
+      this.$v.$touch()
+      if (!this.$v.$invalid) {
+        alert('posted!')
+        axios.post(url, formData)
+          .then(res => {
+            // Authenticate
+            let token = res.data.key
+            this.$store.commit('authenticate', { token: token })
+            console.log(this.$store.state.authenticated)
 
-          // Redirect
-          this.$router.replace(this.$route.query.from)
-        })
-        // .catch(error => console.log(error.response))
-        .catch(error => {
-            if(error.response) {
-              let code = `Login failed: ${error.response.status} ${error.response.statusText}`
-              this.showAlert = true
-              this.errors.code = code 
-              if (error.response.data.non_field_errors) {
-                this.errors.message = error.response.data.non_field_errors.join(' ')
-              } else { this.errors.message = ''}
-            }
-        })
+            // Redirect
+            this.$router.replace(this.$route.query.from)
+          })
+          // .catch(error => console.log(error.response))
+          .catch(error => {
+              if(error.response) {
+                let code = `Login failed: ${error.response.status} ${error.response.statusText}`
+                this.showAlert = true
+                this.errors.code = code 
+                if (error.response.data.non_field_errors) {
+                  this.errors.message = error.response.data.non_field_errors.join(' ')
+                } else { this.errors.message = ''}
+              }
+          })
+      }
     }
   },
   mounted() {
@@ -123,13 +131,17 @@ export default {
        content: '';
       background: inherit; 
       position: absolute;
-      left: -25px;  //giving minus -25px left position
+      left: 0;  //giving minus -25px left position
       right: 0;
-      top: -25px;   //giving minus -25px top position 
+      top: 0;   //giving minus -25px top position 
       bottom: 0;
       box-shadow: inset 0 0 0 200px rgba(255,255,255,0.3);
       // filter: blur(10px);
     }
+  }
+  input {
+    font-family: var(--ffamily-second);
+    font-size: 1rem;
   }
 
   h2 {
@@ -137,17 +149,33 @@ export default {
     color: #fff;
     text-align: center;
     margin-bottom: 2rem;
-    font-family: 'Nunito Sans', sans-serif;
-    font-weight: 600;
+    font-family: var(--ffamily-primary);
+    font-weight: 500;
+    font-size: 1.6rem;
 
   }
 
-  .errors {
+  .alert {
     margin: 1rem 0;
   }
 
+  .form-error {
+    color: #70000e;
+    font-size: 0.9em;
+    font-weight: 800;
+    padding-left: 0.2rem;
+    padding: 0.3rem 0.5rem;
+    font-family: var(--ffamily-primary);
+
+  }
+
+  .input-error {
+    border: 2px solid red;
+    border-radius: 0.3rem;
+  }
+
   .el-input {
-    margin: 0.5rem 0;
+    margin-top: 1rem;
     z-index: 2;
 
     &--prefix .el-input__inner {
