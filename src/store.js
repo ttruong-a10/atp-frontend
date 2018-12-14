@@ -13,9 +13,13 @@ export default new Vuex.Store({
   },
 
   mutations: {
-    authenticate (state, payload) {
+    login(state, payload) {
         state.authenticated = true
         state.authToken = payload.token
+    },
+    logout(state) {
+        state.authenticated = false 
+        state.authToken = ''
     }
   },
 

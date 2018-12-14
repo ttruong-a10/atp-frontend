@@ -47,7 +47,7 @@
 
 <script>
 /* eslint-disable */
-import axios from 'axios'
+import axios from '@/axios-auth'
 import { required } from 'vuelidate/lib/validators'
 
 export default {
@@ -72,22 +72,23 @@ export default {
       const formData = {
         username: this.username,
         password: this.password,
-        email: 'ttruong@gmail.com'
       }
-      const url = 'http://127.0.0.1:8000/rest-auth/login/'
+      const url = '/login/'
 
       this.$v.$touch()
       if (!this.$v.$invalid) {
-        alert('posted!')
         axios.post(url, formData)
           .then(res => {
             // Authenticate
             let token = res.data.key
-            this.$store.commit('authenticate', { token: token })
-            console.log(this.$store.state.authenticated)
+            this.$store.commit('login', { token: token })
 
             // Redirect
-            this.$router.replace(this.$route.query.from)
+            if (this.$route.query.from) {
+                this.$router.replace(this.$route.query.from)
+            } else { 
+                this.$router.push({ name: 'home' })
+            }
           })
           // .catch(error => console.log(error.response))
           .catch(error => {
@@ -103,9 +104,6 @@ export default {
       }
     }
   },
-  mounted() {
-    console.log(this.$store.state.authenticated)
-  }
 }
 </script>
 
