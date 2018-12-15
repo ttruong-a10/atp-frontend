@@ -13,7 +13,22 @@ Vue.config.productionTip = false
 
 // Global Axios
 axios.defaults.baseURL = 'http://127.0.0.1:8000/api/v1'
-axios.defaults.headers.common['Authorization'] = 'Token ' +  store.state.authToken
+axios.interceptors.request.use(
+  (config) => {
+    // let token = localStorage.getItem('authtoken');
+    let token = store.state.authToken
+
+    if (token) {
+      config.headers['Authorization'] = `Token ${ token }`;
+    }
+
+    return config;
+  }, 
+
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 
 // Router

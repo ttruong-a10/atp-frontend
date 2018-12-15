@@ -19,7 +19,7 @@
       <el-menu-item index="2-2">item two</el-menu-item>
       <el-menu-item index="2-3">item three</el-menu-item>
     </el-submenu>
-    <el-menu-item index="3" disabled class="menu-item--info">Info</el-menu-item>
+    <el-menu-item index="3" disabled class="menu-item--info"><router-link :to="{ name: 'void'}">Info</router-link></el-menu-item>
 
     <el-submenu index="4" popper-class="profile-menu">
       <template slot="title"><i class="profile-icon fas fa-user-circle"/></template>
@@ -50,10 +50,10 @@ export default {
     }
   },
   created () {
-    document.addEventListener('click', this.closeAllDropMenus, true)
+    // document.addEventListener('click', this.closeAllDropMenus, true)
   },
   destroyed() {
-    document.removeEventListener('click', this.closeAllDropMenus)
+    // document.removeEventListener('click', this.closeAllDropMenus)
   }
 }
 </script>

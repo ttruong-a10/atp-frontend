@@ -4,8 +4,10 @@
   <div class="container">
     <el-table
       ref="courseTable"
-      :data="courses"
+      v-loading="loading"
+      :data="courses.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
       :default-sort = "{prop: 'created_at', order: 'descending'}"
+      @selection-change="selectionHandler"
       style="width: 100%">
 
       <el-table-column
@@ -37,6 +39,7 @@
       </el-table-column>
 
     </el-table>
+
   </div>
 
 </div>
@@ -51,24 +54,38 @@ export default {
 
   data() {
     return {
-      courses: null,
+      courseInterval: null,
+      selection: null,
     }
   },
 
+  props: ['search', 'loading'],
+
   methods: {
-    getCourse() {
-      const url = '/courses/'
-      axios.get(url)
-        .then( res => {
-          this.courses = res.data
-          console.log(res.data)
-        })
-    }    
+    selectionHandler(val) {
+      this.selection = val
+      this.$emit('selection', val)
+    }
+  },
+
+  computed: {
+    courses() {
+      return this.$store.state.courses
+    },
   },
 
   created() {
-    this.getCourse()
-  } 
+    this.$store.dispatch('updateCourses')
+    this.courseInterval= setInterval(() => {
+      // eslint-disable-next-line 
+      this.$store.dispatch('updateCourses')
+    }, 30*1000)
+
+  },
+
+  beforeDestroy() {
+    clearInterval(this.courseInterval)
+  },
 }
 </script>
 

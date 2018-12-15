@@ -14,28 +14,30 @@
           @close="showAlert = false"
           v-show="showAlert"/>
 
-        <el-input
-          :class="{ 'input-error': $v.username.$error }"
-          size="large"
-          type="text"
-          placeholder="username"
-          prefix-icon="fas fa-user"
-          v-model.trim="$v.username.$model"/>
-        <div class="form-error" v-if="$v.username.$error">Username is required</div>
+        <form>
+          <el-input
+            :class="{ 'input-error': $v.username.$error }"
+            size="large"
+            type="text"
+            placeholder="username"
+            prefix-icon="fas fa-user"
+            v-model.trim="$v.username.$model"/>
+          <div class="form-error" v-if="$v.username.$error">Username is required</div>
 
-        <el-input
-          :class="{ 'input-error': $v.password.$error }"
-          size="large"
-          type="password"
-          placeholder="password"
-          prefix-icon="fas fa-key"
-          v-model.trim="$v.password.$model"
-          @keyup.enter.native="onSubmit" />
-        <div class="form-error" v-if="$v.password.$error">Password is required</div>
+          <el-input
+            :class="{ 'input-error': $v.password.$error }"
+            size="large"
+            type="password"
+            placeholder="password"
+            prefix-icon="fas fa-key"
+            v-model.trim="$v.password.$model"
+            @keyup.enter.native="onSubmit" />
+          <div class="form-error" v-if="$v.password.$error">Password is required</div>
 
-        <div class="content-center" >
-          <el-button type="primary" class="btn-login" @click="onSubmit">Login</el-button>
-        </div>
+          <div class="content-center" >
+            <el-button type="primary" class="btn-login" @click="onSubmit">Login</el-button>
+          </div>
+        </form>
 
 
 
@@ -47,11 +49,13 @@
 
 <script>
 /* eslint-disable */
-import axios from '@/axios-auth'
+import axios from 'axios'
+import axiosAuth from '@/axios-auth'
 import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'Login',
+
   data () {
     return {
       username: '',
@@ -63,11 +67,37 @@ export default {
       },
     }
   },
+
   validations: {
     username: { required },
     password: { required }
   },
+
   methods: {
+    login(response) {
+      let token = response.data.key
+      this.$store.commit('login', { token: token })
+    },
+
+    redirect() {
+      if (this.$route.query.from) {
+        this.$router.replace(this.$route.query.from)
+      } else { 
+        this.$router.push({ name: 'home' })
+      }
+    },
+
+    errorHandler(error) {
+      if(error.response) {
+        let code = `Login failed: ${error.response.status} ${error.response.statusText}`
+        this.showAlert = true
+        this.errors.code = code 
+        if (error.response.data.non_field_errors) {
+          this.errors.message = error.response.data.non_field_errors.join(' ')
+        } else { this.errors.message = ''}
+      }
+    },
+
     onSubmit() {
       const formData = {
         username: this.username,
@@ -77,30 +107,12 @@ export default {
 
       this.$v.$touch()
       if (!this.$v.$invalid) {
-        axios.post(url, formData)
-          .then(res => {
-            // Authenticate
-            let token = res.data.key
-            this.$store.commit('login', { token: token })
-
-            // Redirect
-            if (this.$route.query.from) {
-                this.$router.replace(this.$route.query.from)
-            } else { 
-                this.$router.push({ name: 'home' })
-            }
+        axiosAuth.post(url, formData)
+          .then(response => {
+            this.login(response)
+            this.redirect() 
           })
-          // .catch(error => console.log(error.response))
-          .catch(error => {
-              if(error.response) {
-                let code = `Login failed: ${error.response.status} ${error.response.statusText}`
-                this.showAlert = true
-                this.errors.code = code 
-                if (error.response.data.non_field_errors) {
-                  this.errors.message = error.response.data.non_field_errors.join(' ')
-                } else { this.errors.message = ''}
-              }
-          })
+          .catch(error => this.errorHandler(error))
       }
     }
   },
