@@ -5,7 +5,7 @@
     <el-table
       ref="courseTable"
       v-loading="loading"
-      :data="courses.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+      :data="filteredCourses"
       :default-sort = "{prop: 'created_at', order: 'descending'}"
       @selection-change="selectionHandler"
       style="width: 100%">
@@ -48,43 +48,55 @@
 <script>
 /* eslint-disable */
 import axios from 'axios'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'CourseList',
 
   data() {
     return {
-      courseInterval: null,
-      selection: null,
+      coursePolling: null,
+      courseTable:  this.$refs.courseTable
     }
   },
 
   props: ['search', 'loading'],
 
   methods: {
-    selectionHandler(val) {
-      this.selection = val
-      this.$emit('selection', val)
-    }
+    ...mapMutations({
+      selectionHandler: 'SELECT_COURSES',
+      updateTable: 'UPDATE_TABLE',
+    }),
+    ...mapActions([
+      'updateCourses'
+    ]),
   },
 
   computed: {
-    courses() {
-      return this.$store.state.courses
-    },
+    ...mapGetters([
+      'courses',
+    ]),
+    filteredCourses() {
+      let search = this.search
+      return this.courses.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())) || null
+    }
+    
+  },
+  
+  mounted() {
+    this.updateTable(this.$refs.courseTable)
   },
 
   created() {
-    this.$store.dispatch('updateCourses')
-    this.courseInterval= setInterval(() => {
-      // eslint-disable-next-line 
-      this.$store.dispatch('updateCourses')
+    this.updateCourses()
+    this.coursePolling = setInterval(() => {
+      // console.log('polling')
+      this.updateCourses()
     }, 30*1000)
-
   },
 
   beforeDestroy() {
-    clearInterval(this.courseInterval)
+    clearInterval(this.coursePolling)
   },
 }
 </script>

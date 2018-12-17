@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
+import store from './store/store'
 import axios from 'axios'
 import Vuelidate from 'vuelidate'
 import './plugins/element.js'
@@ -16,7 +16,7 @@ axios.defaults.baseURL = 'http://127.0.0.1:8000/api/v1'
 axios.interceptors.request.use(
   (config) => {
     // let token = localStorage.getItem('authtoken');
-    let token = store.state.authToken
+    let token = store.getters.token
 
     if (token) {
       config.headers['Authorization'] = `Token ${ token }`;
@@ -35,7 +35,7 @@ axios.interceptors.request.use(
 router.beforeEach((to, from, next) => {
   if(to.meta.requiresAuth)
   {
-    if(!store.state.authenticated)
+    if(!store.getters.authenticated)
     {
       // get path that user is trying to reach before redirecting to login
       const loginpath = window.location.pathname

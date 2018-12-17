@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+
 export default {
   name: 'Navbar',
   data() { 
@@ -40,12 +42,15 @@ export default {
     }
   },
   methods: {
+    ...mapMutations({
+      LOGOUT: 'LOGOUT',
+    }),
     closeAllDropMenus() {
         this.$refs.mainMenu.close("2")
         this.$refs.mainMenu.close("4")
     },
     logout() {
-        this.$store.commit('logout')
+        this.LOGOUT()
         this.$router.push({ name: 'login'})
     }
   },

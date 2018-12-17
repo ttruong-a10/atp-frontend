@@ -10,11 +10,11 @@
           placeholder="Type to search"/>
       </div>
 
-      <CourseActionbar :selection="selection" @loading="setLoading" />
+      <CourseActionbar @loading="setLoading" />
       
     </div>
 
-    <CourseList :search="search" :loading="loading" @selection="setSelection"/>
+    <CourseList :search="search" :loading="loading"/>
   </div>
 </template>
 
@@ -29,7 +29,6 @@ export default {
   data() {
     return {
       search: '',
-      selection: null,
       loading: false
     }
   },
@@ -39,9 +38,6 @@ export default {
     CourseActionbar,
   },
   methods: {
-    setSelection(val) {
-      this.selection = val
-    },
     setLoading(val) {
       this.loading = val
     }

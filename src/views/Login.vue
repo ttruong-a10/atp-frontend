@@ -52,6 +52,7 @@
 import axios from 'axios'
 import axiosAuth from '@/axios-auth'
 import { required } from 'vuelidate/lib/validators'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'Login',
@@ -74,10 +75,9 @@ export default {
   },
 
   methods: {
-    login(response) {
-      let token = response.data.key
-      this.$store.commit('login', { token: token })
-    },
+    ...mapMutations({
+      login: 'LOGIN',
+    }),
 
     redirect() {
       if (this.$route.query.from) {
@@ -109,7 +109,7 @@ export default {
       if (!this.$v.$invalid) {
         axiosAuth.post(url, formData)
           .then(response => {
-            this.login(response)
+            this.login({ token: response.data.key })
             this.redirect() 
           })
           .catch(error => this.errorHandler(error))
@@ -121,12 +121,16 @@ export default {
 
 <style lang='scss'>
 .login {
-  // background: #4e54c8;  /* fallback for old browsers */
-  // background: -webkit-linear-gradient(to left, #8f94fb, #4e54c8);
-  // background: linear-gradient(to left, #8f94fb, #4e54c8);
-  background-image: url('https://images.pexels.com/photos/953214/pexels-photo-953214.jpeg');
-  background-size: cover;
-  background-attachment: fixed;
+  background: #4e54c8;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #8f94fb, #4e54c8);
+  background: linear-gradient(to left, #8f94fb, #4e54c8);
+  // background-image: url('https://images.pexels.com/photos/953214/pexels-photo-953214.jpeg');
+  // background-size: cover;
+  // background-attachment: fixed;
+  // background: #8E2DE2;  /* fallback for old browsers */
+  // background: -webkit-linear-gradient(to right, #4A00E0, #8E2DE2);  /* Chrome 10-25, Safari 5.1-6 */
+  // background: linear-gradient(to right, #4A00E0, #8E2DE2); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
   height: 100vh;
 
   &--box {
@@ -146,7 +150,7 @@ export default {
       top: 0;   //giving minus -25px top position 
       bottom: 0;
       box-shadow: inset 0 0 0 200px rgba(255,255,255,0.3);
-      // filter: blur(10px);
+      filter: blur(100px);
     }
   }
   input {
