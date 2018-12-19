@@ -1,7 +1,5 @@
 <template>
   <div class="home">
-    <Navbar/>
-
     <div class="container">
       <div class="searchbar">
         <el-input
@@ -20,7 +18,6 @@
 
 <script>
 /* eslint-disable */
-import Navbar from '@/components/Navbar'
 import CourseList from '@/components/CourseList'
 import CourseActionbar from '@/components/CourseActionbar'
 
@@ -33,7 +30,6 @@ export default {
     }
   },
   components: {
-    Navbar,
     CourseList,
     CourseActionbar,
   },

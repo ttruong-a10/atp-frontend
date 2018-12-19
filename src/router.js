@@ -3,6 +3,7 @@ import store from './store/store'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
+import AddCourse from './views/AddCourse.vue'
 import Void from './views/Void.vue'
 
 Vue.use(Router)
@@ -28,6 +29,12 @@ export default new Router({
         }
         next()
       }
+    },
+    {
+      path: '/add-course',
+      name: 'add-course',
+      component: AddCourse,
+      meta: { requiresAuth : true }
     },
     {
       path: '/void',

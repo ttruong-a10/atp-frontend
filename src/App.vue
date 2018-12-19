@@ -1,14 +1,16 @@
 <template>
   <div id="app">
+    <Navbar v-if="!['login'].includes($route.name)"/>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-
+import Navbar from '@/components/Navbar'
 export default {
   name: 'app',
   components: {
+    Navbar,
   },
   
 }

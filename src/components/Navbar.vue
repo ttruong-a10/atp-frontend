@@ -9,9 +9,12 @@
     background-color="#545c64"
     text-color="#fff" 
     ref="mainMenu"
+    :router="true"
     active-text-color="#ffd04b">
 
-    <el-menu-item index="1" class="menu-item--brand">Brand</el-menu-item>
+    <el-menu-item index="1" :route="{ name: 'home' }" class="menu-item--brand">
+      Brand
+    </el-menu-item>
 
     <el-submenu index="2">
       <template slot="title">Workspace</template>
@@ -19,7 +22,9 @@
       <el-menu-item index="2-2">item two</el-menu-item>
       <el-menu-item index="2-3">item three</el-menu-item>
     </el-submenu>
-    <el-menu-item index="3" disabled class="menu-item--info"><router-link :to="{ name: 'void'}">Info</router-link></el-menu-item>
+    <el-menu-item index="3" :route="{ name: 'add-course' }" class="menu-item--info">
+      Add Course
+    </el-menu-item>
 
     <el-submenu index="4" popper-class="profile-menu">
       <template slot="title"><i class="profile-icon fas fa-user-circle"/></template>
