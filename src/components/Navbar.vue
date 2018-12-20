@@ -16,15 +16,15 @@
       Brand
     </el-menu-item>
 
-    <el-submenu index="2">
+    <el-menu-item index="3" :route="{ name: 'add-course' }">
+      Add Course
+    </el-menu-item>
+    <el-submenu index="2" class="menu-item--info">
       <template slot="title">Workspace</template>
       <el-menu-item index="2-1">item one</el-menu-item>
       <el-menu-item index="2-2">item two</el-menu-item>
       <el-menu-item index="2-3">item three</el-menu-item>
     </el-submenu>
-    <el-menu-item index="3" :route="{ name: 'add-course' }" class="menu-item--info">
-      Add Course
-    </el-menu-item>
 
     <el-submenu index="4" popper-class="profile-menu">
       <template slot="title"><i class="profile-icon fas fa-user-circle"/></template>

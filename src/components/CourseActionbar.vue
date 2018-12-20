@@ -40,8 +40,8 @@ export default {
         this.updateLoading({ el: 'delete', status: true })
 
         Object.keys(this.selection).forEach( key => {
-          // const id = this.selection[key].id
-          const id = 777
+          const id = this.selection[key].id
+          // const id = 777
           axios.delete(`/courses/${id}/`)
             .then(response => {
               this.deleteCourse({ id })

@@ -14,9 +14,9 @@
         type="selection"
         width="55"/>
       <el-table-column
-        property="short_name"
+        property="name"
         sortable
-        label="Name" />
+        label="Course Name" />
       <el-table-column
         property="total_pods"
         sortable

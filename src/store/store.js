@@ -5,6 +5,7 @@ import VuexPersist from 'vuex-persist'
 import auth from './modules/auth'
 import courses from './modules/courses'
 import pods from './modules/pods'
+import loading from './modules/loading'
 
 /* eslint-disable */ 
 
@@ -21,6 +22,7 @@ const vuexLocalStorage = new VuexPersist({
 export default new Vuex.Store({
   plugins: [vuexLocalStorage.plugin],
   modules: {
+    loading,
     auth,
     courses,
     pods,

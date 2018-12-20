@@ -28,7 +28,31 @@ axios.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
-);
+)
+
+// axios.interceptors.request.use(
+//   (config) => {
+//     store.commit('START_LOADING')
+//     return config
+//   }, 
+
+//   (error) => {
+//     store.commit('STOP_LOADING')
+//     return Promise.reject(error);
+//   }
+// )
+
+// axios.interceptors.response.use(
+//   (response) => {
+//     store.commit('STOP_LOADING')
+//     return response 
+//   }, 
+
+//   (error) => {
+//     store.commit('STOP_LOADING')
+//     return Promise.reject(error);
+//   }
+// )
 
 
 // Router

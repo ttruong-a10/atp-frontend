@@ -15,9 +15,69 @@
           <el-input v-model="form.name"></el-input>
         </el-form-item>
 
+        <el-form-item label="Instances" prop="instances">
+          <el-input-number v-model="form.instances" :min="1" :max="50"></el-input-number>
+        </el-form-item>
+
+        <el-form-item label="Region" prop="region">
+          <el-select v-model="form.region" filterable placeholder="Search regions">
+            <el-option
+              v-for="region in form.regionList"
+              :key="region.value"
+              :label="region.label"
+              :value="region.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Image Source" prop="image_src">
+          <el-select v-model="form.image_src" filterable placeholder="Search images">
+            <el-option
+              v-for="image in form.imageList"
+              :key="image.value"
+              :label="image.label"
+              :value="image.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Internet Access" prop="allow_internet_access">
+          <el-switch
+            v-model="form.allow_internet_access"
+            active-text="Allow Outbound" />
+        </el-form-item>
+
+        <el-form-item label="Time Zone" prop="time_zone">
+          <el-select v-model="form.time_zone" filterable placeholder="Search time zone">
+            <el-option
+              v-for="tz in form.time_zone_list"
+              :key="tz.value"
+              :label="tz.label"
+              :value="tz.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+
+        <el-form-item label="Student Access" prop="student_access">
+          <el-date-picker
+            v-model="form.student_access"
+            type="datetimerange"
+            size="large"
+            format="MMM d, HH:mm"
+            :picker-options="{ step: '00:15' }"
+            align="center"
+            range-separator="--"
+            :unlink-panels="true"
+            start-placeholder="Start Date"
+            end-placeholder="End Date"
+            :default-time="['07:00:00', '18:00:00']"
+            />
+        </el-form-item>
+
         <el-form-item>
-          <el-button type="primary">Submit</el-button>
-          <el-button>Cancel</el-button>
+          <el-button type="primary" @click="onSubmit" :loading="loading">Submit</el-button>
+          <el-button @click="$router.go(-1)">Cancel</el-button>
         </el-form-item>
 
       </el-form>
@@ -28,18 +88,27 @@
 
 <script>
 import axios from 'axios'
+// import { mapGetters } from 'vuex';
 /* eslint-disable */ 
 
 export default {
   data() {
     var checkCourseNameExists = (rule, value, callback) => {
 
+      // if empty
       if(!value) {
         return callback(new Error('Enter a course name.'));
       }
 
+      // if not alphanumerics
+      const pattern = /^[0-9a-zA-Z_-]*$/
+      if (!pattern.test(value)) {
+        return callback(new Error('Accepts only alphanmeric, underscore, or hypen characters.'));
+      }
+
       const post_data = { name: value }
-      axios.post('/courses/checkExists/', post_data)
+      const url = '/courses/checkExists/'
+      axios.post(url, post_data)
         .then(response => {
           let exists = response.data
           if(exists) {
@@ -59,15 +128,87 @@ export default {
     }
 
     return {
+      loading: false,
       form: {
         name: '',
+        instances: 1,
+        region: '',
+        regionList: [ 
+          { label: 'US West 2', value: 'westus2' },
+          { label: 'Europe West', value: 'westeurope' },
+          { label: 'Asia Southeast', value: 'asiase' },
+        ],
+        image_src: '',
+        imageList: [
+          { label: 'ADC 41', value: 'adc41' },
+          { label: 'SSLi', value: 'ssli' },
+          { label: 'aGalaxy', value: 'agalaxy' },
+        ],
+        allow_internet_access: false,
+        time_zone: 'America/Los_Angeles',
+        time_zone_list: [
+          { label: 'Africa/Abidjan', value: 'afecabj' },
+          { label: 'Europe/Paris', value: 'paris' },
+          { label: 'America/New_York', value: 'adsfxzv' },
+          { label: 'America/Los_Angeles', value: 'angeles' },
+        ],
+        student_access: '',
       },
       rules: {
         name: [
-          { validator: checkCourseNameExists, trigger: 'blur' },
+          { 
+            validator: checkCourseNameExists, 
+            required: true,
+            trigger: 'blur' 
+          },
+        ],
+        instances: [
+          { 
+            required: true, 
+          },
+        ],
+        region: [
+          { 
+            required: true, 
+            trigger: 'blur' 
+          },
         ],
       },
     }
+  },
+
+  methods: {
+    addCourse() {
+      this.loading = true
+
+      const url = '/courses/'
+      axios.post(url, this.form)
+        .then(response => {
+          this.$router.push({ name: 'home'})
+        })
+        .catch(error => {
+          let response = error.response
+          this.$notify({
+            title: 'Add Course Failed',
+            message: `${response.status} ${response.statusText}`,
+            type: 'error',
+            duration: 0
+        })
+        .finally(() => {
+          this.loading = false
+        })
+      })
+    },
+
+    onSubmit() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.addCourse()
+        } else {
+          return false;
+        }
+      });
+    },
   },
 }
 </script>
