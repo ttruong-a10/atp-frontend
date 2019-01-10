@@ -36,31 +36,32 @@ export default {
         'updateSelection': 'SELECT_COURSES',
       }),
 
-      clickDelete() {
+      async clickDelete() {
         this.updateLoading({ el: 'delete', status: true })
 
-        Object.keys(this.selection).forEach( key => {
+        await Object.keys(this.selection).forEach( async key => {
           const id = this.selection[key].id
           // const id = 777
-          axios.delete(`/courses/${id}/`)
-            .then(response => {
-              this.deleteCourse({ id })
+          try {
+            await axios.delete(`/courses/${id}/`)
+            this.deleteCourse({ id })
+          }
+          catch(error) {
+            const courseName = this.selection[key].name
+            const code = error.response.status
+            const msg = error.response.statusText
+            this.$notify({
+              title: `${courseName} - Delete Failed`,
+              message: `Delete failed: ${code} ${msg}`,
+              type: 'error',
+              duration: 0
             })
-            .catch(error => {
-              const code = error.response.status
-              const msg = error.response.statusText
-              this.$notify({
-                title: 'Delete Failed',
-                message: `Delete failed: ${code} ${msg} ${key}`,
-                type: 'error',
-                duration: 0
-              });
-            })
-            .finally(() => {
-              this.updateLoading({ el: 'delete', status: false })
-              // Uncheck checkboxes
-              this.courseTable.clearSelection()
-            })
+          }
+          finally {
+            this.updateLoading({ el: 'delete', status: false })
+            // Uncheck checkboxes
+            this.courseTable.clearSelection()
+          }
         })
       }
     }

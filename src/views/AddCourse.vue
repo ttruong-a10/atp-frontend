@@ -20,7 +20,11 @@
         </el-form-item>
 
         <el-form-item label="Region" prop="region">
-          <el-select v-model="form.region" filterable placeholder="Search regions">
+          <el-select v-model="form.region" 
+            filterable 
+            @change="location => getImages(location)"
+            placeholder="Search regions">
+
             <el-option
               v-for="region in form.regionList"
               :key="region.value"
@@ -31,12 +35,16 @@
         </el-form-item>
 
         <el-form-item label="Image Source" prop="image_src">
-          <el-select v-model="form.image_src" filterable placeholder="Search images">
+          <el-select ref="imageSelect" 
+            v-model="form.image_src" 
+            filterable 
+            :loading="loading.image"
+            placeholder="Search images">
             <el-option
               v-for="image in form.imageList"
-              :key="image.value"
-              :label="image.label"
-              :value="image.value">
+              :key="image.id"
+              :label="image.name"
+              :value="image.name">
             </el-option>
           </el-select>
         </el-form-item>
@@ -76,7 +84,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="onSubmit" :loading="loading">Submit</el-button>
+          <el-button type="primary" @click="onSubmit" :loading="loading.course">Submit</el-button>
           <el-button @click="$router.go(-1)">Cancel</el-button>
         </el-form-item>
 
@@ -128,22 +136,21 @@ export default {
     }
 
     return {
-      loading: false,
+      loading: {
+        course: false,
+        image: false,
+      },
       form: {
         name: '',
         instances: 1,
         region: '',
         regionList: [ 
-          { label: 'US West 2', value: 'westus2' },
+          { label: 'US West', value: 'westus' },
+          { label: 'US East', value: 'eastus' },
           { label: 'Europe West', value: 'westeurope' },
-          { label: 'Asia Southeast', value: 'asiase' },
         ],
         image_src: '',
-        imageList: [
-          { label: 'ADC 41', value: 'adc41' },
-          { label: 'SSLi', value: 'ssli' },
-          { label: 'aGalaxy', value: 'agalaxy' },
-        ],
+        imageList: [], 
         allow_internet_access: false,
         time_zone: 'America/Los_Angeles',
         time_zone_list: [
@@ -176,31 +183,57 @@ export default {
       },
     }
   },
-
+  
   methods: {
-    addCourse() {
-      this.loading = true
+    async addCourse() {
+      try {
+        this.loading.course = true
+        const url = '/courses/'
 
-      const url = '/courses/'
-      axios.post(url, this.form)
-        .then(response => {
-          this.$router.push({ name: 'home'})
+        await axios.post(url, this.form)
+        this.$router.push({ name: 'home'})
+      }
+      catch(error) {
+        const response = error.response
+        this.$notify({
+          title: 'Add Course Failed',
+          message: `${response.status} ${response.statusText}`,
+          type: 'error',
+          duration: 0
         })
-        .catch(error => {
-          let response = error.response
-          this.$notify({
-            title: 'Add Course Failed',
-            message: `${response.status} ${response.statusText}`,
-            type: 'error',
-            duration: 0
+      }
+      finally {
+        this.loading.course = false
+      } 
+    },
+
+    async getImages(location) {
+      try {
+        this.loading.image = true
+        console.log(this.$refs.imageSelect)
+        this.form.image_src = ''
+        if(!location) location = ''
+        // clear 
+        const url = `/images/${location}/`
+        let resp= await axios.get(url)
+        this.form.imageList = resp.data
+      }
+      catch(error) {
+        const response = error.response
+        this.$notify({
+          title: 'Get image failed',
+          message: `${response.status} ${response.statusText}`,
+          type: 'error',
+          duration: 0
         })
-        .finally(() => {
-          this.loading = false
-        })
-      })
+      }
+      finally {
+        this.loading.image = false
+      } 
     },
 
     onSubmit() {
+      console.log(this.$refs.form)
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.addCourse()
