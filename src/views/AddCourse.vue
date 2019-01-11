@@ -251,20 +251,35 @@ export default {
         this.loading.course = true
         const url_course = '/courses/'
         const url_pod = '/pods/'
+        const url_token = '/access-tokens/'
 
         // add course
-        let postdata = {
+        let course_postdata = {
           name: this.form.name
         }
-        let newCourse = await axios.post(url_course, postdata)
+        let newCourse = await axios.post(url_course, course_postdata)
+
         
         // add pods
         for(let i=1; i<=this.form.instances; i++) {
-          let postdata = {
-            name: `${newCourse.data.name}_Pod${i}`,
-            course: newCourse.data.id
+          // pad the number with leading zeroes
+          let podNumber = i.toString().padStart(2, '0')
+          let podName = `${newCourse.data.name}_Pod${podNumber}`
+
+          // add access token
+          let token_postdata = {
+            name: podName,
+            start_date: this.form.student_access[0],
+            end_date: this.form.student_access[1]
           }
-          await axios.post(url_pod, postdata)
+          let newToken = await axios.post(url_token, token_postdata)
+
+          let pod_postdata = {
+            name: podName,
+            course: newCourse.data.id,
+            access_token: newToken.data.id,
+          }
+          await axios.post(url_pod, pod_postdata)
         }
 
         this.$router.push({ name: 'home'})
@@ -275,7 +290,6 @@ export default {
         this.$notify({
           title: 'Add Course Failed',
           message: `${response.status} ${response.statusText}`,
-          // message: `${response}`,
           type: 'error',
           duration: 0
         })
