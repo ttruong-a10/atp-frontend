@@ -5,49 +5,85 @@
     <el-col :span="10" :offset="6" class="form">
       <el-form 
         ref="form" 
-        label-width="120px"
+        label-width="150px"
         label-position="left"
-        status-icon
         :model="form"
         :rules="rules"
         >
-        <el-form-item label="Course Name" prop="name">
-          <el-input v-model="form.name"></el-input>
-        </el-form-item>
+        <el-row :gutter="50">
+          <el-col :span="20">
+            <el-form-item label="Course Name" prop="name" status-icon>
+              <el-input v-model="form.name"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item label="Instances" prop="instances" label-width="80px">
+              <el-input-number v-model="form.instances" :min="1" :max="50"></el-input-number>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <el-form-item label="Instances" prop="instances">
-          <el-input-number v-model="form.instances" :min="1" :max="50"></el-input-number>
-        </el-form-item>
+        <el-row :gutter="50">
+          <el-col :span="20">
+            <el-form-item label="Region" prop="region">
+              <el-select v-model="form.region" 
+                filterable 
+                @change="location => { getImages(location); getVmSizes(location) }"
+                placeholder="Search regions">
 
-        <el-form-item label="Region" prop="region">
-          <el-select v-model="form.region" 
-            filterable 
-            @change="location => getImages(location)"
-            placeholder="Search regions">
+                <el-option
+                  v-for="region in form.regionList"
+                  :key="region.value"
+                  :label="region.label"
+                  :value="region.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-            <el-option
-              v-for="region in form.regionList"
-              :key="region.value"
-              :label="region.label"
-              :value="region.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
+        <el-row :gutter="50">
+          <el-col :span="20">
+            <el-form-item label="VM Size" prop="vmsize">
+              <el-select v-model="form.vmsize" 
+                filterable 
+                :loading="loading.vmsize"
+                placeholder="Search sizes">
 
-        <el-form-item label="Image Source" prop="image_src">
-          <el-select ref="imageSelect" 
-            v-model="form.image_src" 
-            filterable 
-            :loading="loading.image"
-            placeholder="Search images">
-            <el-option
-              v-for="image in form.imageList"
-              :key="image.id"
-              :label="image.name"
-              :value="image.name">
-            </el-option>
-          </el-select>
-        </el-form-item>
+                <el-option
+                  v-for="size in form.vmSizeList"
+                  :key="size.id"
+                  :label="size.name"
+                  :value="size.name">
+                  <el-row>
+                    <el-col :span="10">{{ size.name }}</el-col>
+                    <el-col :span="7" style="color: #8492a6; font-size: 0.95em">{{ size.vcpu }} vcpu</el-col>
+                    <el-col :span="7" style="color: #8492a6; font-size: 0.95em">{{ size.memory_gb }} GB Mem</el-col>
+                  </el-row>
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="50">
+          <el-col :span="20">
+            <el-form-item label="Image Source" prop="image_src">
+              <el-select ref="imageSelect" 
+                v-model="form.image_src" 
+                filterable 
+                :loading="loading.image"
+                placeholder="Search images">
+                <el-option
+                  v-for="image in form.imageList"
+                  :key="image.id"
+                  :label="image.name"
+                  :value="image.name">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
         <el-form-item label="Internet Access" prop="allow_internet_access">
           <el-switch
@@ -55,16 +91,21 @@
             active-text="Allow Outbound" />
         </el-form-item>
 
-        <el-form-item label="Time Zone" prop="time_zone">
-          <el-select v-model="form.time_zone" filterable placeholder="Search time zone">
-            <el-option
-              v-for="tz in form.time_zone_list"
-              :key="tz.value"
-              :label="tz.label"
-              :value="tz.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
+
+        <el-row :gutter="50">
+          <el-col :span="20">
+            <el-form-item label="Time Zone" prop="time_zone">
+              <el-select v-model="form.time_zone" filterable placeholder="Search time zone">
+                <el-option
+                  v-for="tz in form.time_zone_list"
+                  :key="tz.value"
+                  :label="tz.label"
+                  :value="tz.value">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
 
         <el-form-item label="Student Access" prop="student_access">
@@ -139,6 +180,7 @@ export default {
       loading: {
         course: false,
         image: false,
+        vmsize: false,
       },
       form: {
         name: '',
@@ -150,6 +192,8 @@ export default {
           { label: 'Europe West', value: 'westeurope' },
         ],
         image_src: '',
+        vmsize: '',
+        vmSizeList: [],
         imageList: [], 
         allow_internet_access: false,
         time_zone: 'America/Los_Angeles',
@@ -169,15 +213,32 @@ export default {
             trigger: 'blur' 
           },
         ],
-        instances: [
-          { 
-            required: true, 
-          },
-        ],
         region: [
           { 
             required: true, 
-            trigger: 'blur' 
+            message: 'Region is required.', 
+            trigger: 'change' 
+          },
+        ],
+        vmsize: [
+          { 
+            required: true, 
+            message: 'VM Size is required.', 
+            trigger: 'change' 
+          },
+        ],
+        image_src: [
+          { 
+            required: true, 
+            message: 'Image Source is required.', 
+            trigger: 'change' 
+          },
+        ],
+        student_access: [
+          { 
+            required: true, 
+            message: 'Student Acces Dates are required', 
+            trigger: 'change' 
           },
         ],
       },
@@ -188,16 +249,33 @@ export default {
     async addCourse() {
       try {
         this.loading.course = true
-        const url = '/courses/'
+        const url_course = '/courses/'
+        const url_pod = '/pods/'
 
-        await axios.post(url, this.form)
+        // add course
+        let postdata = {
+          name: this.form.name
+        }
+        let newCourse = await axios.post(url_course, postdata)
+        
+        // add pods
+        for(let i=1; i<=this.form.instances; i++) {
+          let postdata = {
+            name: `${newCourse.data.name}_Pod${i}`,
+            course: newCourse.data.id
+          }
+          await axios.post(url_pod, postdata)
+        }
+
         this.$router.push({ name: 'home'})
       }
       catch(error) {
         const response = error.response
+        console.log(error)
         this.$notify({
           title: 'Add Course Failed',
           message: `${response.status} ${response.statusText}`,
+          // message: `${response}`,
           type: 'error',
           duration: 0
         })
@@ -207,10 +285,32 @@ export default {
       } 
     },
 
+    async getVmSizes(location) {
+      try {
+        this.loading.vmsize = true
+        this.form.vmsize = ''
+        if(!location) location = ''
+        const url = `/sizes/${location}/`
+        let resp= await axios.get(url)
+        this.form.vmSizeList = resp.data
+      }
+      catch(error) {
+        const response = error.response
+        this.$notify({
+          title: 'Get image failed',
+          message: `${response.status} ${response.statusText}`,
+          type: 'error',
+          duration: 0
+        })
+      }
+      finally {
+        this.loading.vmsize = false
+      } 
+    },
+
     async getImages(location) {
       try {
         this.loading.image = true
-        console.log(this.$refs.imageSelect)
         this.form.image_src = ''
         if(!location) location = ''
         // clear 
@@ -233,7 +333,6 @@ export default {
     },
 
     onSubmit() {
-      console.log(this.$refs.form)
       this.$refs.form.validate((valid) => {
         if (valid) {
           this.addCourse()
@@ -250,6 +349,16 @@ export default {
 .add-course {
   .form {
     margin-top: 3rem;
+
+    .el-row {
+      padding: 0.3rem 0;
+    }
+    .el-input-number {
+      width: 160px;
+    }
+    .el-select {
+      width: 100%;
+    }
   }
 }
 </style>
