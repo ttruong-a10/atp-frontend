@@ -52,16 +52,28 @@ const mutations = {
 }
 
 const actions = {
-  async updateCourses(context) {
-    return await axios.get('/courses/').then( response => {
-      context.commit('UPDATE_COURSES', response.data)
-    })
-    .catch( error => {
+  async getCourses({ commit, state }) {
+    try {
+      const response = await axios.get('/courses/')
+      commit('UPDATE_COURSES', response.data)
+      return state.courses
+    }
+    catch (error) {
       throw(error.response)
-    })
-  }
-}
+    }
+  },
 
+  async checkCourseExist({ dispatch }, courseName) {
+    const courses = await dispatch('getCourses')
+
+    if (courses.filter(course => course.name === courseName).length > 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+  
+}
 
 export default {
   state,

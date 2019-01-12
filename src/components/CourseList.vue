@@ -68,7 +68,7 @@ export default {
       updateTable: 'UPDATE_TABLE',
     }),
     ...mapActions([
-      'updateCourses'
+      'getCourses'
     ]),
   },
 
@@ -88,10 +88,10 @@ export default {
   },
 
   created() {
-    this.updateCourses()
+    this.getCourses()
     this.coursePolling = setInterval(() => {
       // console.log('polling')
-      this.updateCourses()
+      this.getCourses()
     }, 30*1000)
   },
 

@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import AddCourse from './views/AddCourse.vue'
+import CourseDetail from './views/CourseDetail.vue'
+import PageNotFound from './views/PageNotFound.vue'
 import Void from './views/Void.vue'
 
 Vue.use(Router)
@@ -37,10 +39,35 @@ export default new Router({
       meta: { requiresAuth : true }
     },
     {
+      path: '/course/:courseName',
+      name: 'course-detail',
+      component: CourseDetail,
+      meta: { requiresAuth : true },
+      props: true,
+      beforeEnter: (to, from, next) => {
+        // check course exists
+        store.dispatch('checkCourseExist', to.params.courseName)
+          .then((result) => {
+            result ? next() : next('/404')
+          }).catch((error) => {
+            throw(error)
+          })
+      }       
+    },
+    {
       path: '/void',
       name: 'void',
       component: Void,
       meta: { requiresAuth : true }
+    },
+    {
+      path: '/404',
+      name: 404,
+      component: PageNotFound,
+    },
+    {
+      path: '*',
+      redirect: '/404'
     },
     
   ]
