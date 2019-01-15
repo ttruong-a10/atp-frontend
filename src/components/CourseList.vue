@@ -47,15 +47,13 @@
 
 <script>
 /* eslint-disable */
-import axios from 'axios'
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'CourseList',
 
   data() {
     return {
-      coursePolling: null,
       courseTable:  this.$refs.courseTable
     }
   },
@@ -67,15 +65,12 @@ export default {
       selectionHandler: 'SELECT_COURSES',
       updateTable: 'UPDATE_TABLE',
     }),
-    ...mapActions([
-      'getCourses'
-    ]),
   },
 
   computed: {
-    ...mapGetters([
-      'courses',
-    ]),
+    ...mapState({
+      courses: state => state.courses.courses
+    }),
     filteredCourses() {
       let search = this.search
       return this.courses.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())) || null
@@ -85,18 +80,6 @@ export default {
   
   mounted() {
     this.updateTable(this.$refs.courseTable)
-  },
-
-  created() {
-    this.getCourses()
-    this.coursePolling = setInterval(() => {
-      // console.log('polling')
-      this.getCourses()
-    }, 30*1000)
-  },
-
-  beforeDestroy() {
-    clearInterval(this.coursePolling)
   },
 }
 </script>

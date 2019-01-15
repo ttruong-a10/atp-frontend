@@ -1,16 +1,33 @@
 <template>
 <div class="course-detail">
-  Course Detail {{ $route.params.courseName }}
+  <h1 class="title">{{ courseName }}</h1>
+  <PodList courseName="courseName" />
 </div>
 </template>
 
 <script>
+import PodList from '@/components/PodList'
 export default {
-  props: ['courseName',]
+  props: ['courseName',],
+
+  data() {
+    return {
+    }
+  },
+
+  components: {
+    PodList,
+  } 
 
 }
 </script>
 
-<style>
+<style lang='scss'>
+.course-detail {
+  .title {
+    padding: 1rem 2rem;
+    text-decoration: underline;
+  }
+}
 
 </style>

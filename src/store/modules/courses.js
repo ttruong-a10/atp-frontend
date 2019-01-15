@@ -5,22 +5,9 @@ const state = {
   courses: [],
   courseSelection: {},
   courseTable: {},
-  loading: {},
 }
 
 const getters = {
-  courses(state) {
-    return state.courses
-  },
-  courseSelection(state) {
-    return state.courseSelection
-  },
-  courseTable(state) {
-    return state.courseTable
-  },
-  loading(state) {
-    return state.loading
-  }
 }
 
 const mutations = {
@@ -32,9 +19,9 @@ const mutations = {
     state.courseSelection = payload 
   },
 
-  'DELETE_COURSE'(state, payload) {
+  'DELETE_COURSE'(state, courseId) {
     // Find the object with id in array
-    const index = state.courses.findIndex(x => x.id == payload.id)
+    const index = state.courses.findIndex(x => x.id == courseId)
 
     // Must use Vue.delete to be reactive
     Vue.delete(state.courses, index) 
@@ -44,11 +31,6 @@ const mutations = {
     state.courseTable = payload
   },
   
-  'UPDATE_LOADING'(state, payload) {
-    const key = payload.el
-    const value = payload.status
-    Vue.set(state.loading, key, value)
-  },
 }
 
 const actions = {
@@ -63,16 +45,16 @@ const actions = {
     }
   },
 
-  async checkCourseExist({ dispatch }, courseName) {
-    const courses = await dispatch('getCourses')
-
-    if (courses.filter(course => course.name === courseName).length > 0) {
-      return true
-    } else {
-      return false
+  async deleteCourse({ commit, state }, courseId) {
+    try {
+      await axios.delete(`/courses/${courseId}/`)
+      commit('DELETE_COURSE', courseId)
+      return state.courses
     }
-  }
-  
+    catch (error) {
+      throw(error.response)
+    }
+  },
 }
 
 export default {

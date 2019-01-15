@@ -46,7 +46,7 @@ export default new Router({
       props: true,
       beforeEnter: (to, from, next) => {
         // check course exists
-        store.dispatch('checkCourseExist', to.params.courseName)
+        store.dispatch('getCourse', to.params.courseName)
           .then((result) => {
             result ? next() : next('/404')
           }).catch((error) => {

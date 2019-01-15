@@ -4,7 +4,7 @@
     <el-button type="primary" icon="fas fa-play" plain round>Start</el-button>
     <el-button type="primary" icon="fas fa-redo-alt" plain>Restart</el-button>
     <el-button type="primary" icon="fas fa-stop" plain>Stop</el-button>
-    <el-button type="primary" icon="fas fa-trash-alt" plain round @click="clickDelete" :loading="loading.delete">Delete</el-button>
+    <el-button type="primary" icon="fas fa-trash-alt" plain round @click="deleteHandler">Delete</el-button>
   </el-button-group>
 </div>
 </template>
@@ -13,55 +13,58 @@
 /* eslint-disable */
 import Vue from 'vue'
 import axios from 'axios'
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
     name: 'CourseActionbar',
 
     computed: {
-      ...mapGetters({
-        selection: 'courseSelection',
-        loading: 'loading',
-        courseTable: 'courseTable',
+      ...mapState({
+        selection: state => state.courses.courseSelection, 
+        courseTable: state => state.courses.courseTable,
       })
     },
 
     methods: {
       ...mapActions([
-        'updateCourses'
+        'updateCourses',
+        'deleteCourse',
       ]),
       ...mapMutations({
-        'deleteCourse': 'DELETE_COURSE',
-        'updateLoading': 'UPDATE_LOADING',
         'updateSelection': 'SELECT_COURSES',
       }),
 
-      async clickDelete() {
-        this.updateLoading({ el: 'delete', status: true })
+      deleteHandler() {
+        Object.keys(this.selection).forEach( key => {
+          const courseId = this.selection[key].id
+          const courseName = this.selection[key].name
 
-        await Object.keys(this.selection).forEach( async key => {
-          const id = this.selection[key].id
-          // const id = 777
-          try {
-            await axios.delete(`/courses/${id}/`)
-            this.deleteCourse({ id })
-          }
-          catch(error) {
-            const courseName = this.selection[key].name
-            const code = error.response.status
-            const msg = error.response.statusText
-            this.$notify({
-              title: `${courseName} - Delete Failed`,
-              message: `Delete failed: ${code} ${msg}`,
-              type: 'error',
-              duration: 0
-            })
-          }
-          finally {
-            this.updateLoading({ el: 'delete', status: false })
-            // Uncheck checkboxes
-            this.courseTable.clearSelection()
-          }
+          this.$confirm(
+            `This will delete course "${courseName}" and all pods in it! Continue?`,
+            'Warning',
+            { type: 'warning' }
+          ).then(async () => {
+            // const courseId = 777
+            try {
+              await this.deleteCourse(courseId)
+            }
+            catch(error) {
+              const code = error.status
+              const msg = error.statusText
+              this.$notify({
+                title: `${courseName} - Delete Failed`,
+                message: `Delete failed: ${code} ${msg}`,
+                type: 'error',
+                duration: 0
+              })
+            }
+            finally {
+              // Uncheck checkboxes
+              this.courseTable.clearSelection()
+            }
+          }).catch(() => {
+            // this.courseTable.clearSelection()
+          })
         })
       }
     }
