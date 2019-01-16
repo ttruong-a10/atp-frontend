@@ -39,19 +39,16 @@ export default new Router({
       meta: { requiresAuth : true }
     },
     {
-      path: '/course/:courseName',
+      path: '/course/:courseSlug',
       name: 'course-detail',
       component: CourseDetail,
       meta: { requiresAuth : true },
       props: true,
       beforeEnter: (to, from, next) => {
         // check course exists
-        store.dispatch('getCourse', to.params.courseName)
-          .then((result) => {
-            result ? next() : next('/404')
-          }).catch((error) => {
-            throw(error)
-          })
+        store.dispatch('getCourse', to.params.courseSlug)
+        .then(() => { next() })
+        .catch(()=> next('/404'))
       }       
     },
     {

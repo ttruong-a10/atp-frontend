@@ -156,7 +156,7 @@ export default {
       }
 
       const post_data = { name: value }
-      const url = '/courses/checkExists/'
+      const url = '/courses/checkNameExists/'
       axios.post(url, post_data)
         .then(response => {
           let exists = response.data

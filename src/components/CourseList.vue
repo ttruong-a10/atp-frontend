@@ -13,10 +13,14 @@
       <el-table-column
         type="selection"
         width="55"/>
-      <el-table-column
-        property="name"
-        sortable
-        label="Course Name" />
+      <el-table-column sortable label="Course Name">
+        <template slot-scope="scope">
+          <router-link :to="{ name: 'course-detail', params: { courseSlug: scope.row.slug }}">
+            {{ scope.row.name }}
+          </router-link>
+        </template>
+      </el-table-column>
+
       <el-table-column
         property="total_pods"
         sortable
@@ -47,25 +51,19 @@
 
 <script>
 /* eslint-disable */
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'CourseList',
 
   data() {
     return {
+      getCoursesInterval: null,
       courseTable:  this.$refs.courseTable
     }
   },
 
   props: ['search', 'loading'],
-
-  methods: {
-    ...mapMutations({
-      selectionHandler: 'SELECT_COURSES',
-      updateTable: 'UPDATE_TABLE',
-    }),
-  },
 
   computed: {
     ...mapState({
@@ -75,11 +73,31 @@ export default {
       let search = this.search
       return this.courses.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())) || null
     }
-    
+  },
+
+   methods: {
+    ...mapMutations({
+      selectionHandler: 'SELECT_COURSES',
+      updateTable: 'UPDATE_TABLE',
+    }),
+     ...mapActions([
+      'getCourses'
+    ]),
+  },
+
+  created() {
+    this.getCourses()
+    this.getCoursesInteravl = setInterval(() => {
+      this.getCourses()
+    }, 30*1000)
   },
   
   mounted() {
     this.updateTable(this.$refs.courseTable)
+  },
+
+  beforeDestroy() {
+    clearInterval(this.getCoursesInteravl)
   },
 }
 </script>

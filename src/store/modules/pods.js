@@ -42,9 +42,9 @@ const mutations = {
 }
 
 const actions = {
-  async getPodsInCourse({ commit, state }, courseId) {
+  async getPods({ commit, state }, courseSlug) {
     try {
-      const response = await axios.get(`/courses/${courseId}/`)
+      const response = await axios.get(`/courses/${courseSlug}/pods/`)
       commit('UPDATE_PODS', response.data)
       return state.pods
     }
@@ -52,16 +52,6 @@ const actions = {
       throw(error.response)
     }
   },
-
-  async checkPodExist({ dispatch }, podName) {
-    const pods = await dispatch('getPods')
-
-    if (pods.filter(pod => pod.name === podName).length > 0) {
-      return true
-    } else {
-      return false
-    }
-  }
 }
 
 export default {

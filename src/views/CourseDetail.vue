@@ -1,6 +1,5 @@
 <template>
 <div class="course-detail">
-  <h1 class="title">{{ courseName }}</h1>
   <PodList courseName="courseName" />
 </div>
 </template>

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import axios from 'axios'
 
 const state = {
+  course: {},
   courses: [],
   courseSelection: {},
   courseTable: {},
@@ -11,6 +12,10 @@ const getters = {
 }
 
 const mutations = {
+  'UPDATE_COURSE'(state, payload) {
+    state.course = payload
+  },
+
   'UPDATE_COURSES'(state, payload) {
     state.courses = payload
   },
@@ -34,6 +39,17 @@ const mutations = {
 }
 
 const actions = {
+  async getCourse({ commit, state }, courseSlug) {
+    try {
+      const response = await axios.get(`/courses/${courseSlug}/`)
+      commit('UPDATE_COURSE', response.data)
+      return state.course
+    }
+    catch (error) {
+      throw(error.response)
+    }
+  },
+  
   async getCourses({ commit, state }) {
     try {
       const response = await axios.get('/courses/')
