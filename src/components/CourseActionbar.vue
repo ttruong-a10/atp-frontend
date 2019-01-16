@@ -1,10 +1,10 @@
 <template>
 <div class="course-actionbar">
   <el-button-group>
-    <el-button type="primary" icon="fas fa-play" plain round>Start</el-button>
-    <el-button type="primary" icon="fas fa-redo-alt" plain>Restart</el-button>
-    <el-button type="primary" icon="fas fa-stop" plain>Stop</el-button>
-    <el-button type="primary" icon="fas fa-trash-alt" plain round @click="deleteHandler">Delete</el-button>
+    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-play" plain round>Start</el-button>
+    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-redo-alt" plain>Restart</el-button>
+    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-stop" plain>Stop</el-button>
+    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-trash-alt" plain round @click="deleteHandler">Delete</el-button>
   </el-button-group>
 </div>
 </template>
@@ -22,7 +22,12 @@ export default {
       ...mapState({
         selection: state => state.courses.courseSelection, 
         courseTable: state => state.courses.courseTable,
-      })
+      }),
+      isActionBtnDisabled() {
+        if (!Array.isArray(this.selection) || this.selection.length ===0) {
+          return true
+        } 
+      }
     },
 
     methods: {
@@ -35,18 +40,18 @@ export default {
       }),
 
       deleteHandler() {
-        Object.keys(this.selection).forEach( key => {
-          const courseId = this.selection[key].id
-          const courseName = this.selection[key].name
+        this.$confirm(
+          `This will delete course the following courses and all pods in it! Continue?`,
+          'Warning',
+          { type: 'warning' }
+        ).then(() => {
+          Object.keys(this.selection).forEach( async key => {
+            const courseName = this.selection[key].name
+            const courseSlug = this.selection[key].slug
 
-          this.$confirm(
-            `This will delete course "${courseName}" and all pods in it! Continue?`,
-            'Warning',
-            { type: 'warning' }
-          ).then(async () => {
-            // const courseId = 777
+            // const courseName = 'doesnotexister'
             try {
-              await this.deleteCourse(courseId)
+              await this.deleteCourse(courseSlug)
             }
             catch(error) {
               const code = error.status
@@ -62,9 +67,10 @@ export default {
               // Uncheck checkboxes
               this.courseTable.clearSelection()
             }
-          }).catch(() => {
-            // this.courseTable.clearSelection()
           })
+        })
+        .catch(() => {
+          // this.courseTable.clearSelection()
         })
       }
     }

@@ -13,6 +13,7 @@
       <el-table-column
         type="selection"
         width="55"/>
+
       <el-table-column sortable label="Course Name">
         <template slot-scope="scope">
           <router-link :to="{ name: 'course-detail', params: { courseSlug: scope.row.slug }}">

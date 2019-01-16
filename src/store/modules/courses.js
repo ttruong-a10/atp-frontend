@@ -24,9 +24,9 @@ const mutations = {
     state.courseSelection = payload 
   },
 
-  'DELETE_COURSE'(state, courseId) {
+  'DELETE_COURSE'(state, courseSlug) {
     // Find the object with id in array
-    const index = state.courses.findIndex(x => x.id == courseId)
+    const index = state.courses.findIndex(x => x.slug == courseSlug)
 
     // Must use Vue.delete to be reactive
     Vue.delete(state.courses, index) 

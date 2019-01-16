@@ -7,10 +7,17 @@
       style="width: 100%">
 
       <el-table-column
+      type="selection"
+      width="55"/>
+
+      <el-table-column
         sortable
-        prop="number"
-        label="Number" />
-        
+        label="Number">
+          <template slot-scope="scope">
+            {{ scope.row.number.toString().padStart(2, '0') }}
+          </template>
+      </el-table-column>
+          
       <el-table-column
         sortable
         prop="student"
@@ -18,33 +25,48 @@
 
       <el-table-column
         sortable
+        prop="hostname"
+        label="Host" />
+
+      <el-table-column
+        sortable
+        prop="public_ip"
+        label="IP" />
+
+      <el-table-column
+        sortable
         prop="access_token.key"
         label="Token" />
-     
+    
       <el-table-column
-        property="owner"
         sortable
-        label="Owner" />
+        prop="status"
+        label="Status" />
+
+      <el-table-column
+        sortable
+        prop="next_stop"
+        label="Next Stop" />
     </el-table>
 
+    </div>
   </div>
-</div>
-</template>
+  </template>
 
-<script>
-import { mapState, mapActions } from 'vuex'
-export default {
-  props: ['courseName',],
+  <script>
+  import { mapState, mapActions } from 'vuex'
+  export default {
+    props: ['courseName',],
 
-  data() {
-    return {
-      getPodsInterval: null,
-    }
-  },
+    data() {
+      return {
+        getPodsInterval: null,
+      }
+    },
 
-  computed: {
-    ...mapState({
-      course: state => state.courses.course,
+    computed: {
+      ...mapState({
+        course: state => state.courses.course,
       pods: state => state.pods.pods
     }),
     filteredPods() {
@@ -74,7 +96,6 @@ export default {
   },
 
   mounted() {
-    console.log(this.pods)
   }
 
 
@@ -84,6 +105,9 @@ export default {
 
 <style lang='scss'>
 .pod-list {
-  
+  .container {
+    max-width: 80rem;
+    margin: 3rem auto;
+  }
 }
 </style>

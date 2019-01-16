@@ -125,8 +125,8 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="onSubmit" :loading="loading.course">Submit</el-button>
           <el-button @click="$router.go(-1)">Cancel</el-button>
+          <el-button type="primary" @click="onSubmit" :loading="loading.course">Submit</el-button>
         </el-form-item>
 
       </el-form>
@@ -251,7 +251,6 @@ export default {
         this.loading.course = true
         const url_course = '/courses/'
         const url_pod = '/pods/'
-        const url_token = '/access-tokens/'
 
         // add course
         let course_postdata = {
@@ -264,7 +263,7 @@ export default {
         for(let i=1; i<=this.form.instances; i++) {
           // pad the number with leading zeroes
           let podNumber = i.toString().padStart(2, '0')
-          let podName = `${newCourse.data.name}_Pod${podNumber}`
+          let podName = `${newCourse.data.name}_POD${podNumber}`
 
           // add access token
           let token_postdata = {
@@ -272,12 +271,11 @@ export default {
             start_date: this.form.student_access[0],
             end_date: this.form.student_access[1]
           }
-          let newToken = await axios.post(url_token, token_postdata)
 
           let pod_postdata = {
             name: podName,
             course: newCourse.data.id,
-            access_token: newToken.data.id,
+            access_token: token_postdata,
           }
           await axios.post(url_pod, pod_postdata)
         }
