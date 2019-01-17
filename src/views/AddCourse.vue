@@ -78,7 +78,7 @@
                   v-for="image in form.imageList"
                   :key="image.id"
                   :label="image.name"
-                  :value="image.name">
+                  :value="image.id">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -156,7 +156,7 @@ export default {
       }
 
       const post_data = { name: value }
-      const url = '/courses/checkNameExists/'
+      const url = '/courses/check-name-exists/'
       axios.post(url, post_data)
         .then(response => {
           let exists = response.data
@@ -272,10 +272,15 @@ export default {
             end_date: this.form.student_access[1]
           }
 
+          const form = this.form
           let pod_postdata = {
             name: podName,
             course: newCourse.data.id,
             access_token: token_postdata,
+            image_src: form.image_src,
+            vm_size: form.vmsize,
+            location: form.region,
+            allow_internet_outbound: form.allow_internet_access,
           }
           await axios.post(url_pod, pod_postdata)
         }

@@ -1,7 +1,7 @@
 <template>
 <div class="course-actionbar">
   <el-button-group>
-    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-play" plain round>Start</el-button>
+    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-play" plain round @click="startHandler">Start</el-button>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-redo-alt" plain>Restart</el-button>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-stop" plain>Stop</el-button>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-trash-alt" plain round @click="deleteHandler">Delete</el-button>
@@ -32,8 +32,8 @@ export default {
 
     methods: {
       ...mapActions([
-        'updateCourses',
         'deleteCourse',
+        'getCourses',
       ]),
       ...mapMutations({
         'updateSelection': 'SELECT_COURSES',
@@ -58,7 +58,7 @@ export default {
               const msg = error.statusText
               this.$notify({
                 title: `${courseName} - Delete Failed`,
-                message: `Delete failed: ${code} ${msg}`,
+                message: `${code} ${msg}`,
                 type: 'error',
                 duration: 0
               })
@@ -66,14 +66,45 @@ export default {
             finally {
               // Uncheck checkboxes
               this.courseTable.clearSelection()
+              this.getCourses()
             }
           })
         })
         .catch(() => {
-          // this.courseTable.clearSelection()
         })
-      }
+      },
+
+      startHandler() {
+        Object.keys(this.selection).forEach( async key => {
+          const courseSlug = this.selection[key].slug
+          const courseName = this.selection[key].name
+          const url = `/courses/${courseSlug}/action/start/`
+
+          try {
+            await axios.post(url)
+            console.log(this.$store.state.courses)
+            this.$notify({
+              title: `${courseName} - Start successful`,
+              type: 'success',
+            })
+          }
+          catch(error) {
+            const code = error.response.status
+            const msg = error.response.statusText
+            this.$notify({
+              title: `${courseName} - Start Failed`,
+              message: `${code} ${msg}`,
+              type: 'error',
+              duration: 0
+            })
+          }
+          finally {
+            // Uncheck checkboxes
+            this.courseTable.clearSelection()
+          }
+        })
     }
+  }
 }
 </script>
 

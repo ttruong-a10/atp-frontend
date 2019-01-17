@@ -61,10 +61,10 @@ const actions = {
     }
   },
 
-  async deleteCourse({ commit, state }, courseId) {
+  async deleteCourse({ commit, state }, courseSlug) {
     try {
-      await axios.delete(`/courses/${courseId}/`)
-      commit('DELETE_COURSE', courseId)
+      await axios.delete(`/courses/${courseSlug}/`)
+      commit('DELETE_COURSE', courseSlug)
       return state.courses
     }
     catch (error) {
