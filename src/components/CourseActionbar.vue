@@ -3,7 +3,7 @@
   <el-button-group>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-play" plain round @click="startHandler">Start</el-button>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-redo-alt" plain>Restart</el-button>
-    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-stop" plain>Stop</el-button>
+    <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-stop" plain @click="stopHandler">Stop</el-button>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-trash-alt" plain round @click="deleteHandler">Delete</el-button>
   </el-button-group>
 </div>
@@ -54,11 +54,13 @@ export default {
               await this.deleteCourse(courseSlug)
             }
             catch(error) {
+              console.log(error)
               const code = error.status
-              const msg = error.statusText
+              const codeMsg = error.statusText
+              const msg = error.data.join('. ')
               this.$notify({
                 title: `${courseName} - Delete Failed`,
-                message: `${code} ${msg}`,
+                message: `${msg} : ${code} ${codeMsg}`,
                 type: 'error',
                 duration: 0
               })
@@ -82,7 +84,6 @@ export default {
 
           try {
             await axios.post(url)
-            console.log(this.$store.state.courses)
             this.$notify({
               title: `${courseName} - Start successful`,
               type: 'success',
@@ -93,6 +94,36 @@ export default {
             const msg = error.response.statusText
             this.$notify({
               title: `${courseName} - Start Failed`,
+              message: `${code} ${msg}`,
+              type: 'error',
+              duration: 0
+            })
+          }
+          finally {
+            // Uncheck checkboxes
+            this.courseTable.clearSelection()
+          }
+        })
+      },
+
+      stopHandler() {
+        Object.keys(this.selection).forEach( async key => {
+          const courseSlug = this.selection[key].slug
+          const courseName = this.selection[key].name
+          const url = `/courses/${courseSlug}/action/stop/`
+
+          try {
+            await axios.post(url)
+            this.$notify({
+              title: `${courseName} - Stop successful`,
+              type: 'success',
+            })
+          }
+          catch(error) {
+            const code = error.response.status
+            const msg = error.response.statusText
+            this.$notify({
+              title: `${courseName} - Stop Failed`,
               message: `${code} ${msg}`,
               type: 'error',
               duration: 0
