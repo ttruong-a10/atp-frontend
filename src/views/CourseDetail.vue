@@ -1,11 +1,15 @@
 <template>
 <div class="course-detail">
+  <div class="container">
+    <PodActionbar/>
+  </div>
   <PodList courseName="courseName" />
 </div>
 </template>
 
 <script>
 import PodList from '@/components/PodList'
+import PodActionbar from '@/components/PodActionbar'
 export default {
   props: ['courseName',],
 
@@ -15,7 +19,8 @@ export default {
   },
 
   components: {
-    PodList,
+    PodActionbar,
+    PodList
   } 
 
 }
@@ -26,6 +31,15 @@ export default {
   .title {
     padding: 1rem 2rem;
     text-decoration: underline;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    // justify-content: flex-end;
+    align-items: flex-end;
+    max-width: 80rem;
+    margin: 3rem auto;
   }
 }
 

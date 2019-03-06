@@ -1,5 +1,5 @@
 <template>
-<div class="course-actionbar">
+<div class="pod-actionbar">
   <el-button-group>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-play" plain round @click="startHandler">Start</el-button>
     <el-button :disabled="isActionBtnDisabled" type="primary" icon="fas fa-redo-alt" plain @click="restartHandler">Restart</el-button>
@@ -16,15 +16,15 @@ import axios from 'axios'
 import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
-    name: 'CourseActionbar',
+    name: 'PodActionbar',
 
     computed: {
       ...mapState({
-        selection: state => state.courses.courseSelection, 
-        courseTable: state => state.courses.courseTable,
+        selection: state => state.pods.podSelection, 
+        podTable: state => state.pods.podTable,
       }),
       isActionBtnDisabled() {
-        if (!Array.isArray(this.selection) || this.selection.length ===0) {
+        if (!Array.isArray(this.selection) || this.selection.length === 0) {
           return true
         } 
       }
@@ -32,26 +32,25 @@ export default {
 
     methods: {
       ...mapActions([
-        'deleteCourse',
-        'getCourses',
+        'deletePod',
+        'getPods',
       ]),
       ...mapMutations({
-        'updateSelection': 'SELECT_COURSES',
+        'updateSelection': 'SELECT_PODS',
       }),
 
       deleteHandler() {
         this.$confirm(
-          `This will delete course the following courses and all pods in it! Continue?`,
+          `This will delete the following pod(s)! Continue?`,
           'Warning',
           { type: 'warning' }
         ).then(() => {
           Object.keys(this.selection).forEach( async key => {
-            const courseName = this.selection[key].name
-            const courseSlug = this.selection[key].slug
+            const podSlug = this.selection[key].slug
+            const podName = this.selection[key].name
 
-            // const courseName = 'doesnotexister'
             try {
-              await this.deleteCourse(courseSlug)
+              await this.deletePod(podSlug)
             }
             catch(error) {
               console.log(error)
@@ -59,7 +58,7 @@ export default {
               const codeMsg = error.statusText
               const msg = error.data.join('. ')
               this.$notify({
-                title: `${courseName} - Delete Failed`,
+                title: `${podName} - Delete Failed`,
                 message: `${msg} : ${code} ${codeMsg}`,
                 type: 'error',
                 duration: 0
@@ -67,8 +66,8 @@ export default {
             }
             finally {
               // Uncheck checkboxes
-              this.courseTable.clearSelection()
-              this.getCourses()
+              this.podTable.clearSelection()
+              this.getPods()
             }
           })
         })
@@ -78,14 +77,14 @@ export default {
 
       startHandler() {
         Object.keys(this.selection).forEach( async key => {
-          const courseSlug = this.selection[key].slug
-          const courseName = this.selection[key].name
-          const url = `/courses/${courseSlug}/action/start/`
+          const podSlug = this.selection[key].slug
+          const podName = this.selection[key].name
+          const url = `/pods/${podSlug}/action/start/`
 
           try {
             await axios.post(url)
             this.$notify({
-              title: `${courseName} - Start successful`,
+              title: `${podName} - Start successful`,
               type: 'success',
             })
           }
@@ -93,7 +92,7 @@ export default {
             const code = error.response.status
             const msg = error.response.statusText
             this.$notify({
-              title: `${courseName} - Start Failed`,
+              title: `${podName} - Start Failed`,
               message: `${code} ${msg}`,
               type: 'error',
               duration: 0
@@ -101,21 +100,21 @@ export default {
           }
           finally {
             // Uncheck checkboxes
-            this.courseTable.clearSelection()
+            this.podTable.clearSelection()
           }
         })
       },
 
       stopHandler() {
         Object.keys(this.selection).forEach( async key => {
-          const courseSlug = this.selection[key].slug
-          const courseName = this.selection[key].name
-          const url = `/courses/${courseSlug}/action/stop/`
+          const podSlug = this.selection[key].slug
+          const podName = this.selection[key].name
+          const url = `/pods/${podSlug}/action/stop/`
 
           try {
             await axios.post(url)
             this.$notify({
-              title: `${courseName} - Stop successful`,
+              title: `${podName} - Stop successful`,
               type: 'success',
             })
           }
@@ -123,7 +122,7 @@ export default {
             const code = error.response.status
             const msg = error.response.statusText
             this.$notify({
-              title: `${courseName} - Stop Failed`,
+              title: `${podName} - Stop Failed`,
               message: `${code} ${msg}`,
               type: 'error',
               duration: 0
@@ -131,21 +130,21 @@ export default {
           }
           finally {
             // Uncheck checkboxes
-            this.courseTable.clearSelection()
+            this.podTable.clearSelection()
           }
         })
       },
 
       restartHandler() {
         Object.keys(this.selection).forEach( async key => {
-          const courseSlug = this.selection[key].slug
-          const courseName = this.selection[key].name
-          const url = `/courses/${courseSlug}/action/restart/`
+          const podSlug = this.selection[key].slug
+          const podName = this.selection[key].name
+          const url = `/pods/${podSlug}/action/restart/`
 
           try {
             await axios.post(url)
             this.$notify({
-              title: `${courseName} - Restart successful`,
+              title: `${podName} - Restart successful`,
               type: 'success',
             })
           }
@@ -153,7 +152,7 @@ export default {
             const code = error.response.status
             const msg = error.response.statusText
             this.$notify({
-              title: `${courseName} - Restart Failed`,
+              title: `${podName} - Restart Failed`,
               message: `${code} ${msg}`,
               type: 'error',
               duration: 0
@@ -161,7 +160,7 @@ export default {
           }
           finally {
             // Uncheck checkboxes
-            this.courseTable.clearSelection()
+            this.podTable.clearSelection()
           }
         })
       }
@@ -171,7 +170,7 @@ export default {
 
 
 <style lang="scss">
-.course-actionbar {
+.pod-actionbar {
   margin: 1rem 0;
 
   .fas {

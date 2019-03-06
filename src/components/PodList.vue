@@ -4,6 +4,7 @@
     <el-table
       :data="filteredPods"
       :default-sort = "{prop: 'number', order: 'ascending'}"
+      @selection-change="selectionHandler"
       style="width: 100%">
 
       <el-table-column
@@ -54,7 +55,7 @@
   </template>
 
   <script>
-  import { mapState, mapActions } from 'vuex'
+  import { mapState, mapActions, mapMutations } from 'vuex'
   export default {
     props: ['courseName',],
 
@@ -80,6 +81,9 @@
       'getCourse',
       'getPods'
     ]),
+    ...mapMutations({
+       selectionHandler: 'SELECT_PODS',
+    })
   },
 
   created() {

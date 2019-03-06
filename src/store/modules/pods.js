@@ -25,7 +25,7 @@ const mutations = {
   },
 
   'SELECT_PODS'(state, payload) {
-    state.podselection = payload 
+    state.podSelection = payload 
   },
 
   'DELETE_POD'(state, payload) {
@@ -46,6 +46,17 @@ const actions = {
     try {
       const response = await axios.get(`/courses/${courseSlug}/pods/`)
       commit('UPDATE_PODS', response.data)
+      return state.pods
+    }
+    catch (error) {
+      throw(error.response)
+    }
+  },
+
+  async deletePod({ commit, state }, podSlug) {
+    try {
+      await axios.delete(`/pods/${podSlug}/`)
+      commit('DELETE_COURSE', podSlug)
       return state.pods
     }
     catch (error) {
